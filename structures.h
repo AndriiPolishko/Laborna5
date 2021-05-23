@@ -1,5 +1,6 @@
 #include <iostream>
 #include "math.h"
+#include <vector>
 using  namespace std;
 using  namespace std;
 struct Spot {
@@ -15,4 +16,22 @@ struct Spot {
         x = 6371 * cos(latitude * 3.14159 / 180.) * (longitude * 3.14159 / 180.);
         y = (latitude * 3.14159 / 180.) * 6371;
     }
+};
+
+struct Point {
+    float x;
+    float y;
+};
+
+struct Rectangle {
+    Point LB; // Left bottom corner
+    Point RT; // Top right corner
+};
+
+struct Node {
+    vector<Node*> childs;
+    vector<Spot*> data;
+    Node* parent;
+    Rectangle MBR;
+    bool isLeaf;
 };
