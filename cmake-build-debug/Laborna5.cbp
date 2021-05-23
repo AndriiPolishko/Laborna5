@@ -80,6 +80,9 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="C:/Users/ramp8/Laboratorni_Z_OP/Laborna5/TreeSearch.h">
+			<Option target="Laborna5"/>
+		</Unit>
 		<Unit filename="C:/Users/ramp8/Laboratorni_Z_OP/Laborna5/main.cpp">
 			<Option target="Laborna5"/>
 		</Unit>

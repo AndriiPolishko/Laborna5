@@ -1,6 +1,7 @@
 #include <iostream>
-#include "math.h"
+#include <math.h>
 #include <vector>
+#include <string>
 using  namespace std;
 using  namespace std;
 struct Spot {
@@ -18,15 +19,21 @@ struct Spot {
     }
 };
 
-struct Point {
+struct Point{
     float x;
     float y;
 };
 
-struct Rectangle {
+struct Rectangle{
     Point LB; // Left bottom corner
     Point RT; // Top right corner
 };
+
+struct Circle
+        {
+    double rad;
+    Point centre;
+        };
 
 struct Node {
     vector<Node*> childs;
