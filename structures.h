@@ -1,8 +1,9 @@
 #include <iostream>
 #include "math.h"
 #include <vector>
+
 using  namespace std;
-using  namespace std;
+
 struct Spot {
     float latitude;
     float longitude;
@@ -31,7 +32,6 @@ struct Rectangle {
 struct Node {
     vector<Node*> childs;
     vector<Spot*> data;
-    Node* parent;
     Rectangle MBR;
     bool isLeaf;
 };
