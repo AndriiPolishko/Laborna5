@@ -3,6 +3,8 @@
 void search(double,double ,double ,string,string );
 Point GetCentreOfRect(Rectangle);
 bool IntersectCircleInRectangule(Rectangle,Circle);
+bool CirclPointIntersect(Circle cir, Spot *point);
+void PointsInCircleSearch(Node* , Point , double , string , string , vector< Spot* >& );
 int main(int argc, char** argv)
 {
     string type,subtype;
@@ -19,6 +21,10 @@ Point GetCentreOfRect(Rectangle rect)
     return centre;
 }
 
+bool CirclPointIntersect(Circle cir, Spot *point) {
+    return pow(cir.centre.x - point->x, 2) + pow(cir.centre.y - point->y, 2) <= pow(cir.rad, 2);
+}
+
 bool IntersectCircleInRectangule(Rectangle rec,Circle cir)
 {
     Point centre = GetCentreOfRect(rec);
@@ -30,9 +36,23 @@ bool IntersectCircleInRectangule(Rectangle rec,Circle cir)
     return (dx*dx + dy*dy)<(cir.rad*cir.rad);
 }
 
-void search(double N,double lat,double lon,string type,string subtype ="" )
-{
-    vector<Spot> res;
+void PointsInCircleSearch(Node* node, Point centre, double R, string type, string subtype, vector< Spot* >& result) {
+    Circle cir;
+    cir.rad = R,cir.centre = centre;
+    if (node->childs.size() > 0) {
+        if (IntersectCircleInRectangule(node->MBR,cir)) {
+            for (int i = 0; i < node->childs.size(); i++) {
+                PointsInCircleSearch(node->childs[i], centre, R, type, subtype, result);
+            }
+        }
+    }
+    else
+        for(int i =0;i<node->data.size();i++)
+        {
+            if (CirclPointIntersect(cir, node->data[i]) && node->data[i]->type == type && node->data[i]->subtype == subtype) {
+                result.push_back(node->data[i]);
+            }
+        }
 
 }
 
