@@ -1,35 +1,74 @@
-#include <fstream>
-#include "QuadTree.h"
 
+#include "structures.h"
+#include "QuadTree.h"
 void search(double,double ,double ,string,string );
 Point GetCentreOfRect(Rectangle);
 bool IntersectCircleInRectangule(Rectangle,Circle);
 bool CirclPointIntersect(Circle cir, Spot *point);
 void PointsInCircleSearch(Node* , Point , double , string , string , vector< Spot* >& );
 
-vector<Spot> readSpotList(string);
-
+vector<Spot*> readSpotList(string);
 
 int main(int argc, char** argv)
 {
-    cout << "reading data from file...";
-    vector<Spot> spotsList = readSpotList("spots.csv");
-    cout << "Done\n";
-
+    Spot center;
+    string type,subtype;
+    center.latitude = atof(argv[2]);
+    center.longitude = atof(argv[3]);
+    double radius = atof(argv[4]);
+    type = argv[5];
+    subtype = argv[6];
+    center.adapt();
     QuadTree tree;
+    vector<Spot*> geoSpots;
 
-    cout << "writing data into tree...";
-    for (int i = 0; i < spotsList.size(); i++)
+    Spot cent;
+    geoSpots = readSpotList("C:/Users/ramp8/Laboratorni_Z_OP/Laba5/data/spots.csv");
+    for(Spot *i :geoSpots)
     {
-        tree.insertData(&spotsList[i]);
-        system("cls");
-        cout << "reading data from file...Done\n";
-        cout << "writing data into tree..." << i + 1 << "/" << spotsList.size();
+        tree.insertData(i);
     }
-    cout << "reading data from file...Done\n";
-    cout << "writing data into tree...Done\n";
 
     return 0;
+}
+
+vector<Spot*> readSpotList(string path){
+    ifstream file(path);
+
+    if (!file.is_open()){
+        cout << "Failed to open spot list file!" << endl;
+    }
+
+    string buff;
+    vector<Spot*> geoSpots;
+
+    while (!file.eof()){
+        Spot* newGeoSpot;
+
+        getline(file, buff, ';');
+        newGeoSpot->latitude = stof(buff);
+
+        getline(file, buff, ';');
+        newGeoSpot->longitude = stof(buff);
+
+        getline(file, buff, ';');
+        newGeoSpot->type = buff;
+
+        getline(file, buff, ';');
+        newGeoSpot->subtype = buff;
+
+        getline(file, buff, ';');
+        newGeoSpot->name = buff;
+
+        getline(file, buff, ';');
+        newGeoSpot->address = buff;
+
+        getline(file, buff, '\n'); // Next spot
+
+        geoSpots.push_back(newGeoSpot);
+    }
+
+    return geoSpots;
 }
 
 Point GetCentreOfRect(Rectangle rect)
@@ -75,42 +114,3 @@ void PointsInCircleSearch(Node* node, Point centre, double R, string type, strin
 
 }
 
-vector<Spot> readSpotList(string path) {
-    ifstream file(path);
-
-    if (!file.is_open()) {
-        cout << "Failed to open spot list file!" << endl;
-    }
-
-    string buff;
-    vector<Spot> geoSpots;
-
-    while (!file.eof()) {
-        Spot newGeoSpot;
-
-        getline(file, buff, ';');
-        newGeoSpot.latitude = stof(buff);
-
-        getline(file, buff, ';');
-        newGeoSpot.longitude = stof(buff);
-
-        getline(file, buff, ';');
-        newGeoSpot.type = buff;
-
-        getline(file, buff, ';');
-        newGeoSpot.subtype = buff;
-
-        getline(file, buff, ';');
-        newGeoSpot.name = buff;
-
-        getline(file, buff, ';');
-        newGeoSpot.address = buff;
-
-        getline(file, buff, '\n'); // Next spot
-        newGeoSpot.adapt();
-
-        geoSpots.push_back(newGeoSpot);
-    }
-
-    return geoSpots;
-}
