@@ -1,14 +1,33 @@
+#include <fstream>
+#include "QuadTree.h"
 
-#include "structures.h"
 void search(double,double ,double ,string,string );
 Point GetCentreOfRect(Rectangle);
 bool IntersectCircleInRectangule(Rectangle,Circle);
 bool CirclPointIntersect(Circle cir, Spot *point);
 void PointsInCircleSearch(Node* , Point , double , string , string , vector< Spot* >& );
+
+vector<Spot> readSpotList(string);
+
+
 int main(int argc, char** argv)
 {
-    string type,subtype;
-    double radius,lat,lon;
+    cout << "reading data from file...";
+    vector<Spot> spotsList = readSpotList("spots.csv");
+    cout << "Done\n";
+
+    QuadTree tree;
+
+    cout << "writing data into tree...";
+    for (int i = 0; i < spotsList.size(); i++)
+    {
+        tree.insertData(&spotsList[i]);
+        system("cls");
+        cout << "reading data from file...Done\n";
+        cout << "writing data into tree..." << i + 1 << "/" << spotsList.size();
+    }
+    cout << "reading data from file...Done\n";
+    cout << "writing data into tree...Done\n";
 
     return 0;
 }
@@ -56,3 +75,42 @@ void PointsInCircleSearch(Node* node, Point centre, double R, string type, strin
 
 }
 
+vector<Spot> readSpotList(string path) {
+    ifstream file(path);
+
+    if (!file.is_open()) {
+        cout << "Failed to open spot list file!" << endl;
+    }
+
+    string buff;
+    vector<Spot> geoSpots;
+
+    while (!file.eof()) {
+        Spot newGeoSpot;
+
+        getline(file, buff, ';');
+        newGeoSpot.latitude = stof(buff);
+
+        getline(file, buff, ';');
+        newGeoSpot.longitude = stof(buff);
+
+        getline(file, buff, ';');
+        newGeoSpot.type = buff;
+
+        getline(file, buff, ';');
+        newGeoSpot.subtype = buff;
+
+        getline(file, buff, ';');
+        newGeoSpot.name = buff;
+
+        getline(file, buff, ';');
+        newGeoSpot.address = buff;
+
+        getline(file, buff, '\n'); // Next spot
+        newGeoSpot.adapt();
+
+        geoSpots.push_back(newGeoSpot);
+    }
+
+    return geoSpots;
+}
