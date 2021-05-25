@@ -3,7 +3,7 @@
 QuadTree::QuadTree(double x0, double y0, double x1, double y1)
 {
 	root = nullptr;
-	quadCapacity = 100;
+	quadCapacity = 10;
 
 	root = new Node;
 
@@ -16,9 +16,6 @@ QuadTree::QuadTree(double x0, double y0, double x1, double y1)
 	LB.y = y0;
 	RT.x = x1;
 	RT.y = y1;
-
-	cout << LB.x << " " << LB.y << endl;
-	cout << RT.x << " " << RT.y << endl;
 
 	root->MBR = Rectangle(LB, RT);
 }
@@ -152,8 +149,7 @@ void QuadTree::split(Node* N)
 
 bool QuadTree::isSpotInArea(Spot* data, Rectangle& quad)
 {
-	
-	return (data->latitude >= quad.LB.x && data->latitude <= quad.RT.x &&
-		data->longitude >= quad.LB.y && data->longitude <= quad.RT.y);
+	return (data->longitude >= quad.LB.x && data->longitude <= quad.RT.x &&
+		data->latitude >= quad.LB.y && data->latitude <= quad.RT.y);
 	
 }
