@@ -4,25 +4,19 @@
 class QuadTree
 {
 public:
-	QuadTree();
-	~QuadTree();
+	QuadTree(double, double, double, double);
+
 	
+
 	Node* root;
 
-	void insertData(Spot*);
-	void printTree(Node* N = nullptr);
+	void insert(Spot*, Node* N = nullptr);
+	void print(Node* N = nullptr);
 
 private:
 	int quadCapacity;
-
-	void insert(Node*, Spot*);
-	void insertFirstSpot(Spot*);
-	void splitQuad(Node*);
+	
+	void split(Node*);
 	bool isSpotInArea(Spot*, Rectangle&);
-	void defSubQuadsSize(Node*);
-	void resizeTree(Node* );
-	void expandRootQuad(Rectangle&, Spot*);
-	void reinsertSpots(Node*);
-	Node* chooseSubTree(Node*, Spot*);
 };
 

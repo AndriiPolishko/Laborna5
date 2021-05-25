@@ -1,97 +1,91 @@
 #include "QuadTree.h"
 
-QuadTree::QuadTree()
+QuadTree::QuadTree(double x0, double y0, double x1, double y1)
 {
 	root = nullptr;
-	quadCapacity = 200;
+	quadCapacity = 100;
+
+	root = new Node;
+
+	root->isLeaf = true;
+
+	Point LB;
+	Point RT;
+
+	LB.x =  x0;
+	LB.y = y0;
+	RT.x = x1;
+	RT.y = y1;
+
+	cout << LB.x << " " << LB.y << endl;
+	cout << RT.x << " " << RT.y << endl;
+
+	root->MBR = Rectangle(LB, RT);
 }
 
-QuadTree::~QuadTree()
-{
-}
-
-void QuadTree::insertData(Spot* newData)
-{
-	if (!root)
-	{
-		insertFirstSpot(newData);
-	}
-	else {
-		insert(root, newData);
-	}
-}
-
-void QuadTree::printTree(Node* N)
+void QuadTree::insert(Spot* newData, Node* N)
 {
 	if (N == nullptr)
 	{
 		N = root;
 	}
+	
 	if (N->isLeaf)
 	{
-		for (int i = 0; i < N->data.size(); i++)
-		{
-			cout << N->data[i]->latitude<< "; ";
-			cout << N->data[i]->longitude << "; ";
-			cout << N->data[i]->type << "; ";
-			cout << N->data[i]->subtype << "; ";
-			cout << N->data[i]->name << "; ";
-			cout << N->data[i]->address << "; " << endl;
-		}
-	}
-	else {
-		for (int i = 0; i < N->childs.size(); i++)
-		{
-			printTree(N->childs[i]);
-		}
-	}
-}
 
-void QuadTree::insert(Node* N, Spot* newData)
-{
-	if (!isSpotInArea(newData, root->MBR))
-	{
-		expandRootQuad(root->MBR, newData);
-		resizeTree(root);
-		reinsertSpots(root);
-
-	}
-	if (N->isLeaf)
-	{
 		if (N->data.size() < quadCapacity)
 		{
 			N->data.push_back(newData);
 		}
 		else {
-			splitQuad(N);
-			Node* childNode = new Node;
-			childNode = chooseSubTree(N, newData);
-			insert(childNode, newData);
+			split(N);
+			for (int i = 0; i < 4; i++)
+			{
+				if (isSpotInArea(newData, N->childs[i]->MBR)) {
+					insert(newData, N->childs[i]);
+				}
+			}
 		}
 	}
 	else {
-		Node* childNode = new Node; 
-		childNode = chooseSubTree(N, newData);
-		insert(childNode, newData);
+		for (int i = 0; i < 4; i++)
+		{
+			if (isSpotInArea(newData, N->childs[i]->MBR)) {
+				insert(newData, N->childs[i]);
+			}
+		}
 	}
 }
 
-void QuadTree::insertFirstSpot(Spot* newData)
+void QuadTree::print(Node* N)
 {
-	root = new Node;
+	if (N == nullptr)
+	{
+		N = root;
+	}
 
-	root->data.push_back(newData);
-
-	root->isLeaf = true;
-
-	root->MBR.LB = { newData->x, newData->y };
-	root->MBR.RT = { newData->x, newData->y };
+	if (N->isLeaf)
+	{
+		for (int i = 0; i < N->data.size(); i++)
+		{
+			cout << N->data[i]->latitude << ';';
+			cout << N->data[i]->longitude << ';';
+			cout << N->data[i]->type << ';';
+			cout << N->data[i]->subtype << ';';
+			cout << N->data[i]->name << ';';
+			cout << N->data[i]->address << ';' << endl;
+		}
+	}
+	else {
+		for (int i = 0; i < 4; i++)
+		{
+			print(N->childs[i]);
+		}
+	}
 }
 
-void QuadTree::splitQuad(Node* N)
+void QuadTree::split(Node* N)
 {
-	N->isLeaf = false;
-
 	Node* LT = new Node;
 	Node* RT = new Node;
 	Node* RB = new Node;
@@ -102,107 +96,64 @@ void QuadTree::splitQuad(Node* N)
 	RB->isLeaf = true;
 	LB->isLeaf = true;
 
-	// Tie them to their parent rectangle
-	N->childs = { LT, RT, RB, LB };
+	N->isLeaf = false;
+	
+	// LT init
+	LT->MBR.LB.x = N->MBR.LB.x;
+	LT->MBR.LB.y = (N->MBR.RT.y + N->MBR.LB.y) / 2;
+	LT->MBR.RT.x = (N->MBR.RT.x + N->MBR.LB.x) / 2;
+	LT->MBR.RT.y = N->MBR.RT.y;
 
-	defSubQuadsSize(N);
-}
+	// RT init
+	RT->MBR.LB.x = (N->MBR.RT.x + N->MBR.LB.x) / 2;
+	RT->MBR.LB.y = (N->MBR.RT.y + N->MBR.LB.y) / 2;
+	RT->MBR.RT.x = N->MBR.RT.x;
+	RT->MBR.RT.y = N->MBR.RT.y;
 
-bool QuadTree::isSpotInArea(Spot* newData, Rectangle& quad)
-{
-	if (newData->x <= quad.RT.x && newData->x > quad.LB.x &&
-		newData->y <= quad.RT.y && newData->y > quad.LB.y)
-		return true;
+	// RB init
+	RB->MBR.LB.x = (N->MBR.RT.x + N->MBR.LB.x) / 2;
+	RB->MBR.LB.y = N->MBR.LB.y;
+	RB->MBR.RT.x = N->MBR.RT.x;
+	RB->MBR.RT.y = (N->MBR.RT.y + N->MBR.LB.y) / 2;
 
-	return false;
-}
-
-void QuadTree::defSubQuadsSize(Node* N)
-{
-	// LT MBR init
-	N->childs[0]->MBR.LB.x = N->MBR.LB.x;
-	N->childs[0]->MBR.LB.y = (N->MBR.LB.y + N->MBR.RT.y) / 2;
-	N->childs[0]->MBR.RT.x = (N->MBR.LB.x + N->MBR.RT.x) / 2;
-	N->childs[0]->MBR.RT.y = N->MBR.RT.y;
-
-	// RT MBR init
-	N->childs[1]->MBR.LB.x = (N->MBR.LB.x + N->MBR.RT.x) / 2;
-	N->childs[1]->MBR.LB.y = (N->MBR.LB.y + N->MBR.RT.y) / 2;
-	N->childs[1]->MBR.RT.x = N->MBR.RT.x;
-	N->childs[1]->MBR.RT.y = N->MBR.RT.y;
-
-	// RB MBR init
-	N->childs[2]->MBR.LB.x = N->MBR.LB.x;
-	N->childs[2]->MBR.LB.y = N->MBR.LB.y;
-	N->childs[2]->MBR.RT.x = (N->MBR.LB.x + N->MBR.RT.x) / 2;
-	N->childs[2]->MBR.RT.y = (N->MBR.LB.y + N->MBR.RT.y) / 2;
-
-	// LT MBR init
-	N->childs[3]->MBR.LB.x = N->MBR.LB.x;
-	N->childs[3]->MBR.LB.y = N->MBR.LB.y;
-	N->childs[3]->MBR.RT.x = (N->MBR.LB.x + N->MBR.RT.x) / 2;
-	N->childs[3]->MBR.RT.y = (N->MBR.LB.y + N->MBR.RT.y) / 2;
-
-}
-
-void QuadTree::resizeTree(Node* N)
-{
-	if (!N->isLeaf)
+	// LB init
+	LB->MBR.LB.x = N->MBR.LB.x;
+	LB->MBR.LB.y = N->MBR.LB.y;
+	LB->MBR.RT.x = (N->MBR.RT.x + N->MBR.LB.x) / 2;
+	LB->MBR.RT.y = (N->MBR.RT.y + N->MBR.LB.y) / 2;
+	
+	
+	for (int i = 0; i < N->data.size(); i++)
 	{
-		defSubQuadsSize(N);
-
-		for (int i = 0; i < 4; i++)
-			resizeTree(N->childs[i]);
-	}
-}
-
-void QuadTree::expandRootQuad(Rectangle& oldMBR, Spot* newData)
-{
-	cout << ">";
-	Point newSpot = { newData->latitude, newData->longitude };
-
-	float maxX, maxY, minX, minY;
-
-	maxX = max(oldMBR.RT.x, newSpot.x);
-	maxY = max(oldMBR.RT.y, newSpot.y);
-
-	minX = min(oldMBR.LB.x, newSpot.x);
-	minY = min(oldMBR.LB.y, newSpot.y);
-
-	oldMBR = {
-		Point(minX, minY),
-		Point(maxX, maxY)
-	};
-}
-
-void QuadTree::reinsertSpots(Node* N)
-{
-	if (N->isLeaf)
-	{
-		for (int i = 0; i < N->data.size(); i++)
+		if (isSpotInArea(N->data[i], LT->MBR))
 		{
-			if (!isSpotInArea(N->data[i], N->MBR)) {
-				Spot* dataUnit = new Spot;
-				dataUnit = N->data[i];
-				N->data.erase(N->data.begin() + i);
-				insertData(dataUnit);
-			}
+			LT->data.push_back(N->data[i]);
 		}
-	}
-	else {
-		for (int i = 0; i < N->childs.size(); i++)
+
+		else if (isSpotInArea(N->data[i], RT->MBR))
 		{
-			reinsertSpots(N->childs[i]);
+			RT->data.push_back(N->data[i]);
+		}
+
+		else if (isSpotInArea(N->data[i], RB->MBR))
+		{
+			RB->data.push_back(N->data[i]);
+		}
+
+		else if (isSpotInArea(N->data[i], LB->MBR))
+		{
+			LB->data.push_back(N->data[i]);
 		}
 	}
+
+	N->childs = {LT, RT, RB, LB};
+	N->data.clear();
 }
 
-Node* QuadTree::chooseSubTree(Node* N, Spot* newData)
+bool QuadTree::isSpotInArea(Spot* data, Rectangle& quad)
 {
-	for (int i = 0; i < 4; i++)
-	{
-		if (isSpotInArea(newData, N->childs[i]->MBR)) {
-			return N->childs[i];
-		}
-	}
+	
+	return (data->latitude >= quad.LB.x && data->latitude <= quad.RT.x &&
+		data->longitude >= quad.LB.y && data->longitude <= quad.RT.y);
+	
 }
