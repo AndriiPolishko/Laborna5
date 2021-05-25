@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <math.h>
 
 using  namespace std;
 
@@ -34,14 +35,22 @@ struct Point{
 };
 
 struct Rectangle{
+public:
+    Rectangle(){};
     Point LB; // Left bottom corner
     Point RT; // Top right corner
+    Rectangle(Point point, Point point1)
+    {
+    LB = point;
+    RT = point1;
+    }
+
 };
 
 struct Circle
         {
     double rad;
-    Point centre;
+    Spot centre;
         };
 
 struct Node {
@@ -51,3 +60,5 @@ struct Node {
     Rectangle MBR;
     bool isLeaf;
 };
+
+
