@@ -6,8 +6,6 @@ class QuadTree
 public:
 	QuadTree(double, double, double, double);
 
-	
-
 	Node* root;
 
 	void insert(Spot*, Node* N = nullptr);
