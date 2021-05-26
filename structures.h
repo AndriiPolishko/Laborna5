@@ -1,32 +1,31 @@
-#include <iostream>
 #include <vector>
 #include <string>
 #include <math.h>
+//using  namespace std;
 
-using  namespace std;
+
 
 struct Spot {
     double latitude;
     double longitude;
-    string type;
-    string subtype;
-    string name;
-    string address;
+    std::string type;
+    std::string subtype;
+    std::string name;
+    std::string address;
     double x,y;
     void adapt() {
         //converting into xOy coordinates
         x = 6371.0 * cos(latitude * 3.14159 / 180.) * (longitude * 3.14159 / 180.);
         y = (latitude * 3.14159 / 180.) * 6371.0;
 
-        
+
     }
 };
 
 struct Point{
     double x;
     double y;
-    Point()
-    {}
+    Point() {}
     Point(double  x,double y)
     {
         this->x = x;
@@ -34,31 +33,27 @@ struct Point{
     }
 };
 
-struct Rectangle{
-public:
-    Rectangle(){};
+struct Rect{
+    Rect (){};
+    Rect (Point a,Point b)
+    {
+        LB = a;
+        RT = b;
+    }
     Point LB; // Left bottom corner
     Point RT; // Top right corner
-    Rectangle(Point point, Point point1)
-    {
-    LB = point;
-    RT = point1;
-    }
-
 };
 
 struct Circle
-        {
+{
     double rad;
-    Spot centre;
-        };
-
-struct Node {
-    vector<Node*> childs;
-    vector<Spot*> data;
-    Node* parent;
-    Rectangle MBR;
-    bool isLeaf;
+    Point centre;
 };
 
-
+struct Node {
+    std::vector<Node*> childs;
+    std::vector<Spot*> data;
+    Node* parent;
+    Rect MBR;
+    bool isLeaf;
+};
