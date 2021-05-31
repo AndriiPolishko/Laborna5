@@ -40,6 +40,8 @@ struct Rect{
         LB = a;
         RT = b;
     }
+
+    std::vector<std::string> types;
     Point LB; // Left bottom corner
     Point RT; // Top right corner
 };
